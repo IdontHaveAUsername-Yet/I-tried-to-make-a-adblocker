@@ -1,4 +1,3 @@
-// Wildcard-Filter für Werbung
 const adFilters = [
   "*://*.doubleclick.net/*",
   "*://*.adservice.google.com/*",
@@ -20,7 +19,7 @@ const adFilters = [
   "*://*.freedesktopgames.net/*"
 ].map((pattern) => new RegExp(pattern.replace(/\*/g, ".*")));
 
-// Funktion zum Laden der Whitelist (asynchron)
+
 let whitelist = [];
 
 async function loadWhitelist() {
@@ -35,17 +34,17 @@ async function loadWhitelist() {
   }
 }
 
-// Überprüfen, ob eine URL auf der Whitelist ist
+
 function isWhitelisted(url) {
   return whitelist.some((regex) => regex.test(url));
 }
 
-// Blockiere unerwünschte URLs (bei Anfragen)
+
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (isWhitelisted(details.url)) {
       console.log("Whitelist erlaubt URL:", details.url);
-      return; // Blockiere nicht, wenn URL auf der Whitelist steht
+      return;
     }
     if (adFilters.some((filter) => filter.test(details.url))) {
       console.log("Blockiere Anfrage:", details.url);
@@ -56,7 +55,7 @@ browser.webRequest.onBeforeRequest.addListener(
   ["blocking"]
 );
 
-// Blockiere unerwünschte Weiterleitungen
+
 browser.webRequest.onHeadersReceived.addListener(
   (details) => {
     const redirectUrl = details.responseHeaders.find(
@@ -65,7 +64,7 @@ browser.webRequest.onHeadersReceived.addListener(
 
     if (redirectUrl && isWhitelisted(redirectUrl)) {
       console.log("Whitelist erlaubt Weiterleitung:", redirectUrl);
-      return; // Blockiere nicht, wenn Weiterleitung auf der Whitelist steht
+      return; 
     }
     if (redirectUrl && adFilters.some((filter) => filter.test(redirectUrl))) {
       console.log("Blockiere Weiterleitung nach:", redirectUrl);
@@ -76,21 +75,21 @@ browser.webRequest.onHeadersReceived.addListener(
   ["blocking", "responseHeaders"]
 );
 
-// Verzögertes Tab-Schließen für dynamische Inhalte
+
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.url && isWhitelisted(changeInfo.url)) {
     console.log("Whitelist erlaubt Tab-Update:", changeInfo.url);
-    return; // Verhindert das Schließen des Tabs, wenn er auf der Whitelist steht
+    return; 
   }
   if (changeInfo.url && adFilters.some((filter) => filter.test(changeInfo.url))) {
     console.log("Blockiere Tab wegen Aktualisierung:", changeInfo.url);
     setTimeout(() => {
       browser.tabs.remove(tabId).catch(console.error);
-    }, 200); // 200 ms Verzögerung für dynamische Inhalte
+    }, 200);
   }
 });
 
-// Tabs schließen, die beim Öffnen auf unerwünschte URLs zeigen
+// 
 browser.tabs.onCreated.addListener((tab) => {
   if (tab.openerTabId !== undefined) {
     setTimeout(() => {
@@ -104,9 +103,9 @@ browser.tabs.onCreated.addListener((tab) => {
           browser.tabs.remove(updatedTab.id).catch(console.error);
         }
       });
-    }, 100); // Kleine Verzögerung für initiale Lade-URLs
+    }, 100); 
   }
 });
 
-// Initialisiere die Whitelist beim Start
+
 loadWhitelist();
