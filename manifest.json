@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Simple Adblocker",
+  "version": "1.0",
+  "description": "Ein einfacher Adblocker für Firefox, der Werbung, Pop-ups und Weiterleitungen blockiert.",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation",
+    "tabs",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Adblocker Aktiviert",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "48": "icon.png",
+    "128": "icon-128.png"
+  },
+  "web_accessible_resources": [
+    "whitelist.json" 
+  ]
+}
